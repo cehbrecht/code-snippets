@@ -15,7 +15,7 @@ $ mpiexec -n 2 python sleep.py
 ## Spawn sleep process using a master
 
 ```
-$ mpiexec python master.py
+$ mpiexec -n 1 python master.py
 ```
 
 ## Links
