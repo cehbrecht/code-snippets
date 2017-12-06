@@ -5,6 +5,7 @@ import os
 import json
 import dill
 import subprocess
+from mpi4py import MPI
 
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -54,6 +55,8 @@ class Sleep(Process):
 def sleep(request, response):
     import time
 
+    tic = time.time()
+
     if 'delay' in request.inputs:
         sleep_delay = request.inputs['delay'][0].data
     else:
@@ -65,6 +68,19 @@ def sleep(request, response):
     time.sleep(sleep_delay)
     response.outputs['sleep_output'].data = 'done sleeping'
     print('... awake')
+
+    # mpi
+    comm = MPI.COMM_WORLD
+    # process start number 0, 1, ...
+    rank = comm.Get_rank()
+    # max number of processes
+    size = comm.Get_size()
+    # notify about completion
+    tac = time.time()
+    msg = "Completion time [#{}/{}]: {} seconds\n".format(rank, size, tac - tic)
+    print(msg)
+    with open(os.path.join(MODULE_PATH, 'sleep.log'), 'a') as fp:
+        fp.write(msg)
     # raise Exception("Akari!")
 
     return response
@@ -91,7 +107,7 @@ def client_for(service):
 
 
 def test_wps_sleep():
-    client = client_for(Service(processes=[Sleep()]))
+    client = client_for(Service(processes=[Sleep()], cfgfiles=['pywps.cfg']))
     datainputs = "delay=1.0"
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='sleep',
