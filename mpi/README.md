@@ -18,6 +18,13 @@ $ mpiexec -n 2 python sleep.py
 $ mpiexec -n 1 python master.py
 ```
 
+## Quick hack to use MPI in a PyWPS process
+
+```
+$ pytest wps_sleep.py
+$ less sleep.log
+```
+
 ## Links
 
 * https://mpi4py.scipy.org/docs/usrman/tutorial.html
