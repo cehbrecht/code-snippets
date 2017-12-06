@@ -1,0 +1,6 @@
+name: mpi
+channels:
+- conda-forge
+- defaults
+dependencies:
+- openmpi
