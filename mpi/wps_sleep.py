@@ -4,7 +4,9 @@ from pywps.app.Common import Metadata
 import os
 import json
 import dill
-# import pickle
+import subprocess
+
+MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 class Sleep(Process):
@@ -40,7 +42,8 @@ class Sleep(Process):
             fp.write(request.json)
         with open('response.dump', 'w') as fp:
             dill.dump(response, fp)
-        mpi_launcher()
+        # mpi_launcher()
+        subprocess.check_output(['mpiexec', '-n', '2', 'python', os.path.join(MODULE_PATH, 'wps_sleep.py')])
         with open('response.dump', 'r') as fp:
             response = dill.load(fp)
         return response
