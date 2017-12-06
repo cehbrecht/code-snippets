@@ -12,6 +12,12 @@ $ conda env create
 $ mpiexec -n 2 python sleep.py
 ```
 
+## Spawn sleep process using a master
+
+```
+$ mpiexec python master.py
+```
+
 ## Links
 
 * https://mpi4py.scipy.org/docs/usrman/tutorial.html
