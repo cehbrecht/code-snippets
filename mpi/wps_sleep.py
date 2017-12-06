@@ -1,6 +1,8 @@
 from pywps import Process, LiteralInput, LiteralOutput
 from pywps.app.Common import Metadata
 
+import os
+
 
 class Sleep(Process):
     def __init__(self):
@@ -31,21 +33,33 @@ class Sleep(Process):
         )
 
     def _handler(self, request, response):
-        import time
+        with open('request.json', 'w') as fp:
+            fp.write(request.json)
+            # print(os.path.abspath('.'))
+        return sleep(request, response)
 
-        if 'delay' in request.inputs:
-            sleep_delay = request.inputs['delay'][0].data
-        else:
-            sleep_delay = 10
+# the processing function
 
-        time.sleep(sleep_delay)
-        response.update_status('PyWPS Process started. Waiting...', 50)
-        print('zzzZ')
-        time.sleep(sleep_delay)
-        response.outputs['sleep_output'].data = 'done sleeping'
-        print('... awake')
 
-        return response
+def sleep(request, response):
+    import time
+
+    if 'delay' in request.inputs:
+        sleep_delay = request.inputs['delay'][0].data
+    else:
+        sleep_delay = 10
+
+    time.sleep(sleep_delay)
+    response.update_status('PyWPS Process started. Waiting...', 50)
+    print('zzzZ')
+    time.sleep(sleep_delay)
+    response.outputs['sleep_output'].data = 'done sleeping'
+    print('... awake')
+    # raise Exception("Akari!")
+
+    return response
+
+# unit test
 
 
 from pywps.tests import WpsClient, WpsTestResponse
