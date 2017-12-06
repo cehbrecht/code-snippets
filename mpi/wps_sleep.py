@@ -39,14 +39,38 @@ class Sleep(Process):
             sleep_delay = 10
 
         time.sleep(sleep_delay)
-        response.update_status('PyWPS Process started. Waiting...', 20)
-        time.sleep(sleep_delay)
-        response.update_status('PyWPS Process started. Waiting...', 40)
-        time.sleep(sleep_delay)
-        response.update_status('PyWPS Process started. Waiting...', 60)
-        time.sleep(sleep_delay)
-        response.update_status('PyWPS Process started. Waiting...', 80)
+        response.update_status('PyWPS Process started. Waiting...', 50)
+        print('zzzZ')
         time.sleep(sleep_delay)
         response.outputs['sleep_output'].data = 'done sleeping'
+        print('... awake')
 
         return response
+
+
+from pywps.tests import WpsClient, WpsTestResponse
+from pywps import Service
+from pywps.tests import assert_response_success
+
+
+class WpsTestClient(WpsClient):
+
+    def get(self, *args, **kwargs):
+        query = "?"
+        for key, value in kwargs.items():
+            query += "{0}={1}&".format(key, value)
+        return super(WpsTestClient, self).get(query)
+
+
+def client_for(service):
+    return WpsTestClient(service, WpsTestResponse)
+
+
+def test_wps_sleep():
+    client = client_for(Service(processes=[Sleep()]))
+    datainputs = "delay=1.0"
+    resp = client.get(
+        service='WPS', request='Execute', version='1.0.0', identifier='sleep',
+        datainputs=datainputs)
+    print(resp.response)
+    assert_response_success(resp)
