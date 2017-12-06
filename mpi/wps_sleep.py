@@ -2,6 +2,9 @@ from pywps import Process, LiteralInput, LiteralOutput
 from pywps.app.Common import Metadata
 
 import os
+import json
+import dill
+# import pickle
 
 
 class Sleep(Process):
@@ -33,10 +36,14 @@ class Sleep(Process):
         )
 
     def _handler(self, request, response):
+        # job = dict(uuid=response.uuid.hex)
+        # job['request'] = json.loads(request.json)
         with open('request.json', 'w') as fp:
             fp.write(request.json)
-            # print(os.path.abspath('.'))
-        return sleep(request, response)
+        with open('response.dump', 'w') as fp:
+            dill.dump(response, fp)
+            # pickle.dump(response, fp)
+        return mpi_launcher()
 
 # the processing function
 
@@ -88,3 +95,21 @@ def test_wps_sleep():
         datainputs=datainputs)
     print(resp.response)
     assert_response_success(resp)
+
+# mpi launcher
+
+
+def mpi_launcher():
+    from pywps import WPSRequest
+    request = WPSRequest()
+    with open('request.json', 'r') as fp:
+        request.json = json.load(fp)
+    with open('response.dump', 'r') as fp:
+        response = dill.load(fp)
+    # do the job
+    response = sleep(request, response)
+    return response
+
+
+if __name__ == '__main__':
+    mpi_launcher()
