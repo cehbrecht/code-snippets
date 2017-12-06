@@ -36,14 +36,14 @@ class Sleep(Process):
         )
 
     def _handler(self, request, response):
-        # job = dict(uuid=response.uuid.hex)
-        # job['request'] = json.loads(request.json)
         with open('request.json', 'w') as fp:
             fp.write(request.json)
         with open('response.dump', 'w') as fp:
             dill.dump(response, fp)
-            # pickle.dump(response, fp)
-        return mpi_launcher()
+        mpi_launcher()
+        with open('response.dump', 'r') as fp:
+            response = dill.load(fp)
+        return response
 
 # the processing function
 
@@ -108,7 +108,8 @@ def mpi_launcher():
         response = dill.load(fp)
     # do the job
     response = sleep(request, response)
-    return response
+    with open('response.dump', 'w') as fp:
+        dill.dump(response, fp)
 
 
 if __name__ == '__main__':
