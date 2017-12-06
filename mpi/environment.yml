@@ -4,6 +4,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
+- python=2.7
 - mpi4py
 - openmpi
 - pywps
