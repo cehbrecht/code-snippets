@@ -28,7 +28,7 @@ class Welcome(Process):
                 Metadata('User Guide', 'https://emu.readthedocs.io/en/latest/processes.html'),  # noqa
                 Metadata('PyWPS Demo', 'https://pywps-demo.readthedocs.io/en/latest/'),
             ],
-            version='1.5',
+            version='1.0',
             inputs=inputs,
             outputs=outputs,
             store_supported=True,
@@ -44,10 +44,18 @@ class Welcome(Process):
 # process generator
 
 
-def generate_welcome_clazz(cls_name, greeting):
+def create_welcome_clazz(greeting):
     clazz = type(
-        cls_name, (Welcome,), {'greeting': greeting})
+        greeting, (Welcome,), {'greeting': greeting})
     return clazz
+
+
+def welcome_process_generator(greetings):
+    for greeting in greetings:
+        yield create_welcome_clazz(greeting)()
+
+
+PROCESSES = [p for p in welcome_process_generator(['Moin', 'Bonjour'])]
 
 # unit test
 
@@ -71,8 +79,7 @@ def client_for(service):
 
 
 def test_wps_welcome_to_hamburg():
-    Hello = generate_welcome_clazz('WelcomeToHamburg', 'Moin')
-    client = client_for(Service(processes=[Hello()], cfgfiles=['pywps.cfg']))
+    client = client_for(Service(processes=PROCESSES, cfgfiles=['pywps.cfg']))
     datainputs = "name=Alice"
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='moin',
@@ -82,8 +89,7 @@ def test_wps_welcome_to_hamburg():
 
 
 def test_wps_welcome_to_montreal():
-    Hello = generate_welcome_clazz('WelcomeToMontreal', 'Bonjour')
-    client = client_for(Service(processes=[Hello()], cfgfiles=['pywps.cfg']))
+    client = client_for(Service(processes=PROCESSES, cfgfiles=['pywps.cfg']))
     datainputs = "name=WhiteRabbit"
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='bonjour',
