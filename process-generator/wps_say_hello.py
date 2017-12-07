@@ -6,7 +6,7 @@ LOGGER = logging.getLogger("PYWPS")
 
 
 class Welcome(Process):
-    welcome = 'Hello'
+    greeting = 'Hello'
 
     def __init__(self):
         inputs = [
@@ -20,7 +20,7 @@ class Welcome(Process):
 
         super(Welcome, self).__init__(
             self._handler,
-            identifier='hello',
+            identifier=self.greeting.lower(),
             title='Say Hello',
             abstract='Just says a friendly Hello.'
                      'Returns a literal string output with Hello plus the inputed name.',
@@ -37,9 +37,17 @@ class Welcome(Process):
 
     def _handler(self, request, response):
         LOGGER.info("say hello")
-        response.outputs['output'].data = self.welcome + '' + request.inputs['name'][0].data
+        response.outputs['output'].data = self.greeting + ' ' + request.inputs['name'][0].data
         response.outputs['output'].uom = UOM('unity')
         return response
+
+# process generator
+
+
+def process_factory(cls_name, greeting):
+    clazz = type(
+        cls_name, (Welcome,), {'greeting': greeting})
+    return clazz
 
 # unit test
 
@@ -62,11 +70,23 @@ def client_for(service):
     return WpsTestClient(service, WpsTestResponse)
 
 
-def test_wps_say_hello():
-    client = client_for(Service(processes=[Welcome()], cfgfiles=['pywps.cfg']))
+def test_wps_welcome_to_hamburg():
+    Hello = process_factory('WelcomeToHamburg', 'Moin')
+    client = client_for(Service(processes=[Hello()], cfgfiles=['pywps.cfg']))
     datainputs = "name=Alice"
     resp = client.get(
-        service='WPS', request='Execute', version='1.0.0', identifier='hello',
+        service='WPS', request='Execute', version='1.0.0', identifier='moin',
+        datainputs=datainputs)
+    print(resp.response)
+    assert_response_success(resp)
+
+
+def test_wps_welcome_to_montreal():
+    Hello = process_factory('WelcomeToMontreal', 'Bonjour')
+    client = client_for(Service(processes=[Hello()], cfgfiles=['pywps.cfg']))
+    datainputs = "name=WhiteRabbit"
+    resp = client.get(
+        service='WPS', request='Execute', version='1.0.0', identifier='bonjour',
         datainputs=datainputs)
     print(resp.response)
     assert_response_success(resp)
