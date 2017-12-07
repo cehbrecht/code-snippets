@@ -38,3 +38,33 @@ class SayHello(Process):
         response.outputs['output'].data = 'Hello ' + request.inputs['name'][0].data
         response.outputs['output'].uom = UOM('unity')
         return response
+
+# unit test
+
+
+from pywps.tests import WpsClient, WpsTestResponse
+from pywps import Service
+from pywps.tests import assert_response_success
+
+
+class WpsTestClient(WpsClient):
+
+    def get(self, *args, **kwargs):
+        query = "?"
+        for key, value in kwargs.items():
+            query += "{0}={1}&".format(key, value)
+        return super(WpsTestClient, self).get(query)
+
+
+def client_for(service):
+    return WpsTestClient(service, WpsTestResponse)
+
+
+def test_wps_say_hello():
+    client = client_for(Service(processes=[SayHello()], cfgfiles=['pywps.cfg']))
+    datainputs = "name=Alice"
+    resp = client.get(
+        service='WPS', request='Execute', version='1.0.0', identifier='hello',
+        datainputs=datainputs)
+    print(resp.response)
+    assert_response_success(resp)
