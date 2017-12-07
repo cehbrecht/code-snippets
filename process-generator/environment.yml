@@ -1,0 +1,8 @@
+name: process-generator
+channels:
+- birdhouse
+- conda-forge
+- defaults
+dependencies:
+- pywps
+- pytest
