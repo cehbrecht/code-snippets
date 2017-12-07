@@ -10,7 +10,6 @@ $ conda env create
 
 ```
 $ pytest wps_say_hello.py
-$ less sleep.log
 ```
 
 
