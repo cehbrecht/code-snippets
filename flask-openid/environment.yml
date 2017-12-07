@@ -3,6 +3,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
+- python=2.7
 - flask
 - flask-openid
 - sqlalchemy
