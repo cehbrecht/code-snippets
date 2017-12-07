@@ -5,7 +5,9 @@ import logging
 LOGGER = logging.getLogger("PYWPS")
 
 
-class SayHello(Process):
+class Welcome(Process):
+    welcome = 'Hello'
+
     def __init__(self):
         inputs = [
             LiteralInput('name', 'Your name',
@@ -16,7 +18,7 @@ class SayHello(Process):
                           abstract='A friendly Hello from us.',
                           data_type='string')]
 
-        super(SayHello, self).__init__(
+        super(Welcome, self).__init__(
             self._handler,
             identifier='hello',
             title='Say Hello',
@@ -35,7 +37,7 @@ class SayHello(Process):
 
     def _handler(self, request, response):
         LOGGER.info("say hello")
-        response.outputs['output'].data = 'Hello ' + request.inputs['name'][0].data
+        response.outputs['output'].data = self.welcome + '' + request.inputs['name'][0].data
         response.outputs['output'].uom = UOM('unity')
         return response
 
@@ -61,7 +63,7 @@ def client_for(service):
 
 
 def test_wps_say_hello():
-    client = client_for(Service(processes=[SayHello()], cfgfiles=['pywps.cfg']))
+    client = client_for(Service(processes=[Welcome()], cfgfiles=['pywps.cfg']))
     datainputs = "name=Alice"
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='hello',
