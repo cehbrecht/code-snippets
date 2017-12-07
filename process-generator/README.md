@@ -1,3 +1,7 @@
 # Example of a PyWPS process generator
 
-to be done.
+## Create Conda environment
+
+```
+$ conda env create
+```
