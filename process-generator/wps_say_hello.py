@@ -44,7 +44,7 @@ class Welcome(Process):
 # process generator
 
 
-def process_factory(cls_name, greeting):
+def generate_welcome_clazz(cls_name, greeting):
     clazz = type(
         cls_name, (Welcome,), {'greeting': greeting})
     return clazz
@@ -71,7 +71,7 @@ def client_for(service):
 
 
 def test_wps_welcome_to_hamburg():
-    Hello = process_factory('WelcomeToHamburg', 'Moin')
+    Hello = generate_welcome_clazz('WelcomeToHamburg', 'Moin')
     client = client_for(Service(processes=[Hello()], cfgfiles=['pywps.cfg']))
     datainputs = "name=Alice"
     resp = client.get(
@@ -82,7 +82,7 @@ def test_wps_welcome_to_hamburg():
 
 
 def test_wps_welcome_to_montreal():
-    Hello = process_factory('WelcomeToMontreal', 'Bonjour')
+    Hello = generate_welcome_clazz('WelcomeToMontreal', 'Bonjour')
     client = client_for(Service(processes=[Hello()], cfgfiles=['pywps.cfg']))
     datainputs = "name=WhiteRabbit"
     resp = client.get(
