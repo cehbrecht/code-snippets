@@ -25,6 +25,12 @@ $ pytest wps_sleep.py
 $ less sleep.log
 ```
 
+## Troubleshooting
+
+### Using MPI Spawn
+
+https://groups.google.com/forum/#!topic/mpi4py/9C6SY4ZY7LI
+
 ## Links
 
 * https://pypi.python.org/pypi/mpi4py
