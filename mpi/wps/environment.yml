@@ -1,0 +1,11 @@
+name: pywps-mpi
+channels:
+- birdhouse
+- conda-forge
+- defaults
+dependencies:
+- python=2.7
+- openmpi
+- pywps
+- dill
+- pytest
