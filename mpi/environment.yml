@@ -4,9 +4,9 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- python=2.7
+#- python=2.7
 - mpi4py
 - openmpi
-- pywps
-- dill
-- pytest
+#- pywps
+#- dill
+#- pytest
