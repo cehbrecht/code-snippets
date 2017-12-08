@@ -7,6 +7,9 @@ import dill
 import subprocess
 from mpi4py import MPI
 
+import logging
+LOGGER = logging.getLogger("PYWPS")
+
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -44,7 +47,14 @@ class Sleep(Process):
         with open('response.dump', 'w') as fp:
             dill.dump(response, fp)
         # mpi_launcher()
-        subprocess.check_output(['mpiexec', '-n', '2', 'python', os.path.join(MODULE_PATH, 'wps_sleep.py')])
+        # raise Exception("current dir=%s" % os.path.abspath(os.path.curdir))
+        try:
+            output = subprocess.check_output(
+                ['mpiexec', '-n', '1',
+                 'python', os.path.join(MODULE_PATH, 'wps_sleep.py')],
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            raise Exception("mpi output=%s" % e.output)
         with open('response.dump', 'r') as fp:
             response = dill.load(fp)
         return response
