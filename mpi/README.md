@@ -27,4 +27,5 @@ $ less sleep.log
 
 ## Links
 
+* https://pypi.python.org/pypi/mpi4py
 * https://mpi4py.scipy.org/docs/usrman/tutorial.html
