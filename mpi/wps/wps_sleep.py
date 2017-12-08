@@ -49,12 +49,13 @@ class Sleep(Process):
         # mpi_launcher()
         # raise Exception("current dir=%s" % os.path.abspath(os.path.curdir))
         try:
-            output = subprocess.check_output(
+            subprocess.check_output(
                 ['mpiexec', '-n', '1',
                  'python', os.path.join(MODULE_PATH, 'wps_sleep.py')],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            raise Exception("mpi output=%s" % e.output)
+            LOGGER.exception("mpi failed")
+            raise
         with open('response.dump', 'r') as fp:
             response = dill.load(fp)
         return response
