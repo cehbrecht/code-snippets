@@ -7,6 +7,6 @@ if __name__ == '__main__':
     comm = MPI.COMM_WORLD.Spawn(
         sys.executable,
         args=["worker.py"],
-        maxprocs=2)
+        maxprocs=1)
     # comm.Barrier()
     comm.Disconnect()
