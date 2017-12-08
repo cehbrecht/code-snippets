@@ -29,6 +29,18 @@ $ less sleep.log
 
 ### Using MPI Spawn
 
+With `mpich2` you need to run a MPI spawn with:
+
+```
+$ mpiexec -n 1 python master.py
+```
+
+If you want to use it without `mpiexec` you need the `openmpi` library:
+
+```
+$ python master.py
+```
+
 https://groups.google.com/forum/#!topic/mpi4py/9C6SY4ZY7LI
 
 ## Links
