@@ -1,6 +1,7 @@
 from pywps import Process, LiteralInput, LiteralOutput
 from pywps.app.Common import Metadata
 
+import sys
 import os
 import json
 import dill
@@ -48,10 +49,12 @@ class Sleep(Process):
             dill.dump(response, fp)
         # mpi_launcher()
         # raise Exception("current dir=%s" % os.path.abspath(os.path.curdir))
+        # raise Exception("which mpiexec=%s" % sys.executable)
         try:
+            bin_dir = os.path.dirname(sys.executable)
             subprocess.check_output(
-                ['mpiexec', '-n', '1',
-                 'python', os.path.join(MODULE_PATH, 'wps_sleep.py')],
+                [os.path.join(bin_dir, 'mpiexec'), '-n', '1',
+                 sys.executable, os.path.join(MODULE_PATH, 'wps_sleep.py')],
                 stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             LOGGER.exception("mpi failed")
