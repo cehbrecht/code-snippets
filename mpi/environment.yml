@@ -1,12 +1,6 @@
 name: mpi
 channels:
-- birdhouse
 - conda-forge
 - defaults
 dependencies:
-#- python=2.7
-- mpi4py
 - openmpi
-#- pywps
-#- dill
-#- pytest
