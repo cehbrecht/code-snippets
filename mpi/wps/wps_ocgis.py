@@ -21,10 +21,9 @@ LOGGER = logging.getLogger("PYWPS")
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def calc(value):
+def calc(dataset):
     tic = time.time()
-    rd = ocgis.RequestDataset(
-        os.path.join(MODULE_PATH, 'testdata', 'tasmax_Amon_MPI-ESM-MR_rcp45_r1i1p1_200601-200612.nc'))
+    rd = ocgis.RequestDataset(dataset)
     ops = ocgis.OcgOperations(
         dataset=rd,
         calc=[{'func': 'mean', 'name': 'mean'}],
@@ -39,15 +38,18 @@ def calc(value):
         fp.write(msg)
         if ocgis.vm.rank == 0:
             tasmax = ocgis.RequestDataset(output).get_field()['mean']
-            fp.write('Value on disk: {}\n'.format(tasmax.get_value()[:1]))
+            fp.write('Number of values: {}\n'.format(len(tasmax.get_value())))
     return output
 
 
 class Calculate(Process):
     def __init__(self):
         inputs = [
-            LiteralInput('number', 'Just a Number',
-                         default='1', data_type='integer')
+            ComplexInput('dataset', 'Dataset',
+                         min_occurs=1,
+                         max_occurs=1,
+                         supported_formats=[Format('application/x-netcdf')]
+                         ),
         ]
         outputs = [
             ComplexOutput('output', 'Output',
@@ -69,15 +71,15 @@ class Calculate(Process):
         )
 
     def _handler(self, request, response):
-        number = request.inputs['number'][0].data
-        response.update_status('PyWPS Process started. Waiting...', 50)
+        dataset = request.inputs['dataset'][0].file
+        # raise Exception(dataset)
+        response.update_status('PyWPS Process started. Waiting...', 10)
         with MPIPoolExecutor(max_workers=None, path=[MODULE_PATH]) as executor:
-            data = [number for i in range(4)]
+            data = [dataset for i in range(2)]
             result = executor.map(calc, data)
             for value in result:
                 print value
             response.outputs['output'].file = value
-            # raise Exception(value)
         return response
 
 
@@ -98,7 +100,8 @@ def client_for(service):
 
 def test_wps_sleep():
     client = client_for(Service(processes=[Calculate()], cfgfiles=['pywps.cfg']))
-    datainputs = "number=1"
+    ds_path = os.path.join(MODULE_PATH, 'testdata', 'tasmax_Amon_MPI-ESM-MR_rcp45_r1i1p1_200601-200612.nc')
+    datainputs = "dataset=files@xlink:href=file://{0}".format(ds_path)
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='calc',
         datainputs=datainputs)
