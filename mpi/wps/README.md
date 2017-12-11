@@ -5,12 +5,20 @@
 ```
 $ conda env create -f environment.yml
 $ source activate pywps-mpi
+$ conda remove mpi4py mpich --force
 $ pip install mpi4py --no-deps
 ```
 
-## Quick hack to use MPI in a PyWPS process
+## Sleep WPS process with MPI
 
 ```
 $ pytest wps_sleep.py
 $ less sleep.log
+```
+
+## OCGIS WPS process with MPI
+
+```
+$ pytest wps_ocgis.py
+$ less calc.log
 ```
