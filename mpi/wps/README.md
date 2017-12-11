@@ -17,9 +17,9 @@ $ pytest wps_sleep.py
 $ less sleep.log
 ```
 
-## OCGIS WPS process with MPI
+## WPS process to calculate mean with OCGIS and MPI
 
 ```
-$ pytest wps_ocgis.py
-$ less calc.log
+$ pytest wps_mean.py
+$ less mean.log
 ```
