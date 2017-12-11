@@ -7,7 +7,7 @@ $ conda env create -f environment.yml
 $ source activate pywps-mpi
 $ conda remove mpi4py mpich --force
 $ pip install mpi4py --no-deps
-$ export MPI4PY_MAX_WORKERS=1 # or more if you have enought CPUs
+$ export MPI4PY_MAX_WORKERS=1 # or more if you have enough CPUs
 ```
 
 ## Sleep WPS process with MPI
