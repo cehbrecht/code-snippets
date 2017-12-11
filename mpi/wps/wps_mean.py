@@ -74,7 +74,7 @@ class Mean(Process):
         dataset = request.inputs['dataset'][0].file
         # raise Exception(dataset)
         response.update_status('PyWPS Process started. Waiting...', 10)
-        with MPIPoolExecutor(max_workers=None, path=[MODULE_PATH]) as executor:
+        with MPIPoolExecutor(max_workers=None, timeout=30, path=[MODULE_PATH]) as executor:
             data = [dataset for i in range(2)]
             result = executor.map(calc_mean, data)
             for value in result:
