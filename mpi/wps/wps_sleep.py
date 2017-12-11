@@ -17,7 +17,7 @@ LOGGER = logging.getLogger("PYWPS")
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def sleep(jobid, seconds=1):
+def sleep(seconds=1):
     tic = time.time()
 
     print('zzzZ')
@@ -75,7 +75,8 @@ class Sleep(Process):
             seconds = 1
         response.update_status('PyWPS Process started. Waiting...', 50)
         with MPIPoolExecutor(max_workers=None, path=[MODULE_PATH]) as executor:
-            result = executor.map(sleep, range(4), seconds=seconds)
+            data = [seconds for i in range(4)]
+            result = executor.map(sleep, data)
             print(result)
         response.outputs['sleep_output'].data = 'done sleeping'
         return response
