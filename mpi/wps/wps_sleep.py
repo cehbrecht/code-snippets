@@ -17,7 +17,7 @@ LOGGER = logging.getLogger("PYWPS")
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def sleep(seconds=1):
+def sleep(jobid, seconds=1):
     tic = time.time()
 
     print('zzzZ')
