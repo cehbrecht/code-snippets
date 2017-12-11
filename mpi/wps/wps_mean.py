@@ -21,7 +21,7 @@ LOGGER = logging.getLogger("PYWPS")
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def calc(dataset):
+def calc_mean(dataset):
     tic = time.time()
     rd = ocgis.RequestDataset(dataset)
     ops = ocgis.OcgOperations(
@@ -34,7 +34,7 @@ def calc(dataset):
     tac = time.time()
     msg = "Completion time [#{}/{}]: {} seconds\n".format(ocgis.vm.rank, ocgis.vm.size, tac - tic)
     print(msg)
-    with open(os.path.join(MODULE_PATH, 'calc.log'), 'a') as fp:
+    with open(os.path.join(MODULE_PATH, 'mean.log'), 'a') as fp:
         fp.write(msg)
         if ocgis.vm.rank == 0:
             tasmax = ocgis.RequestDataset(output).get_field()['mean']
@@ -42,7 +42,7 @@ def calc(dataset):
     return output
 
 
-class Calculate(Process):
+class Mean(Process):
     def __init__(self):
         inputs = [
             ComplexInput('dataset', 'Dataset',
@@ -58,11 +58,11 @@ class Calculate(Process):
                           ),
         ]
 
-        super(Calculate, self).__init__(
+        super(Mean, self).__init__(
             self._handler,
-            identifier='calc',
+            identifier='mean',
             version='1.0',
-            title='Calculator',
+            title='Calculate mean with OCGIS and MPI',
             abstract='',
             inputs=inputs,
             outputs=outputs,
@@ -76,7 +76,7 @@ class Calculate(Process):
         response.update_status('PyWPS Process started. Waiting...', 10)
         with MPIPoolExecutor(max_workers=None, path=[MODULE_PATH]) as executor:
             data = [dataset for i in range(2)]
-            result = executor.map(calc, data)
+            result = executor.map(calc_mean, data)
             for value in result:
                 print value
             response.outputs['output'].file = value
@@ -99,11 +99,11 @@ def client_for(service):
 
 
 def test_wps_sleep():
-    client = client_for(Service(processes=[Calculate()], cfgfiles=['pywps.cfg']))
+    client = client_for(Service(processes=[Mean()], cfgfiles=['pywps.cfg']))
     ds_path = os.path.join(MODULE_PATH, 'testdata', 'tasmax_Amon_MPI-ESM-MR_rcp45_r1i1p1_200601-200612.nc')
     datainputs = "dataset=files@xlink:href=file://{0}".format(ds_path)
     resp = client.get(
-        service='WPS', request='Execute', version='1.0.0', identifier='calc',
+        service='WPS', request='Execute', version='1.0.0', identifier='mean',
         datainputs=datainputs)
     print(resp.response)
     assert_response_success(resp)
