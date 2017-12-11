@@ -1,5 +1,10 @@
 from pywps import Process, LiteralInput, LiteralOutput
+from pywps import ComplexInput, ComplexOutput
 from pywps.app.Common import Metadata
+from pywps.tests import WpsClient, WpsTestResponse
+from pywps import Service
+from pywps import Format
+from pywps.tests import assert_response_success
 
 
 import os
@@ -7,10 +12,8 @@ import time
 from mpi4py import MPI
 from mpi4py.futures import MPIPoolExecutor
 import ocgis
+ocgis.env.OVERWRITE = True
 
-from pywps.tests import WpsClient, WpsTestResponse
-from pywps import Service
-from pywps.tests import assert_response_success
 
 import logging
 LOGGER = logging.getLogger("PYWPS")
@@ -18,19 +21,16 @@ LOGGER = logging.getLogger("PYWPS")
 MODULE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
-def calc_with_ocgis(value=1):
+def calc(value):
     tic = time.time()
-
-    dist = ocgis.vmachine.mpi.OcgDist()
-    dim = dist.create_dimension('foo', 10, dist=True)
-    dist.update_dimension_bounds()
-
-    var = ocgis.Variable(name='a_var', dimensions=dim)
-    var.get_value()[:] = value
-
-    output = os.path.join(MODULE_PATH, 'output.nc')
-    var.parent.write(output)
-
+    rd = ocgis.RequestDataset(
+        os.path.join(MODULE_PATH, 'testdata', 'tasmax_Amon_MPI-ESM-MR_rcp45_r1i1p1_200601-200612.nc'))
+    ops = ocgis.OcgOperations(
+        dataset=rd,
+        calc=[{'func': 'mean', 'name': 'mean'}],
+        calc_grouping=['month'],
+        output_format='nc')
+    output = ops.execute()
     # notify about completion
     tac = time.time()
     msg = "Completion time [#{}/{}]: {} seconds\n".format(ocgis.vm.rank, ocgis.vm.size, tac - tic)
@@ -38,9 +38,9 @@ def calc_with_ocgis(value=1):
     with open(os.path.join(MODULE_PATH, 'calc.log'), 'a') as fp:
         fp.write(msg)
         if ocgis.vm.rank == 0:
-            invar = ocgis.RequestDataset(output).get_field()['a_var']
-            fp.write('Value on disk: {}\n'.format(invar.get_value()))
-    return "done"
+            tasmax = ocgis.RequestDataset(output).get_field()['mean']
+            fp.write('Value on disk: {}\n'.format(tasmax.get_value()[:1]))
+    return output
 
 
 class Calculate(Process):
@@ -50,7 +50,10 @@ class Calculate(Process):
                          default='1', data_type='integer')
         ]
         outputs = [
-            LiteralOutput('output', 'Output', data_type='string')
+            ComplexOutput('output', 'Output',
+                          as_reference=True,
+                          supported_formats=[Format('application/x-netcdf')]
+                          ),
         ]
 
         super(Calculate, self).__init__(
@@ -70,10 +73,11 @@ class Calculate(Process):
         response.update_status('PyWPS Process started. Waiting...', 50)
         with MPIPoolExecutor(max_workers=None, path=[MODULE_PATH]) as executor:
             data = [number for i in range(4)]
-            result = executor.map(calc_with_ocgis, data)
+            result = executor.map(calc, data)
             for value in result:
                 print value
-            response.outputs['output'].data = 'done'
+            response.outputs['output'].file = value
+            # raise Exception(value)
         return response
 
 
