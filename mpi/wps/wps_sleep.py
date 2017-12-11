@@ -75,10 +75,8 @@ class Sleep(Process):
             seconds = 1
         response.update_status('PyWPS Process started. Waiting...', 50)
         with MPIPoolExecutor(max_workers=None, path=[MODULE_PATH]) as executor:
-            # future = executor.submit(time.sleep, 1)
-            future1 = executor.submit(sleep, seconds=seconds)
-            future2 = executor.submit(sleep, seconds=seconds)
-            print(future1.result())
+            result = executor.map(sleep, range(4), seconds=seconds)
+            print(result)
         response.outputs['sleep_output'].data = 'done sleeping'
         return response
 
