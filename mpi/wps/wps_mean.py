@@ -28,6 +28,8 @@ def calc_mean(dataset):
         dataset=rd,
         calc=[{'func': 'mean', 'name': 'mean'}],
         calc_grouping=['month'],
+        prefix='mean_{}'.format(ocgis.vm.rank),
+        # dir_output=MODULE_PATH,
         output_format='nc')
     output = ops.execute()
     # notify about completion
