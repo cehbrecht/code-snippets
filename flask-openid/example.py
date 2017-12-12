@@ -88,9 +88,10 @@ def login():
         openid = request.form.get('openid')
         if openid:
             pape_req = pape.Request([])
-            return oid.try_login(openid, ask_for=['email', 'nickname'],
-                                         ask_for_optional=['fullname'],
-                                         extensions=[pape_req])
+            return oid.try_login(openid,
+                                 # ask_for=['email', ],
+                                 # ask_for_optional=['fullname', 'nickname'],
+                                 extensions=[pape_req])
     return render_template('login.html', next=oid.get_next_url(),
                            error=oid.fetch_error())
 
@@ -111,9 +112,11 @@ def create_or_login(resp):
         flash(u'Successfully signed in')
         g.user = user
         return redirect(oid.get_next_url())
+    print(dir(resp))
     return redirect(url_for('create_profile', next=oid.get_next_url(),
-                            name=resp.fullname or resp.nickname,
-                            email=resp.email))
+                            name=resp.fullname or resp.nickname or 'guest',
+                            email=resp.email or "no@mail.org"
+                            ))
 
 
 @app.route('/create-profile', methods=['GET', 'POST'])
