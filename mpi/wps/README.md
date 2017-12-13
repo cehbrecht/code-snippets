@@ -10,6 +10,12 @@ $ pip install mpi4py --no-deps
 $ export MPI4PY_MAX_WORKERS=1 # or more if you have enough CPUs
 ```
 
+When pip installation of `mpi4py` fails it might help to install the openmpi headers:
+
+```
+$ sudo apt-get install libopenmpi-dev
+``` 
+
 ## Sleep WPS process with MPI
 
 ```
