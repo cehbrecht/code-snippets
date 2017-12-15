@@ -10,13 +10,19 @@ Very simple mean calculation script that will execute in parallel:
 https://github.com/NCPP/ocgis/blob/master/examples/simple_mean.py
 
 Some things should be done on rank 0 like deleting files, prints, etc.
-Otherwise, there is nothing special. 
+Otherwise, there is nothing special.
 It is worth noting that the environment variable `ocgis.env.ADD_OPS_MPI_BARRIER`
 controls the use of an MPI barrier at the end of `OcgOperations`.
 The default is `True`.
 Setting this to `False` may be useful for debugging as tracebacks
- are more likely to appear versus a hanging operation.
- This is `True` by default to help avoid race conditions...
+are more likely to appear versus a hanging operation.
+This is `True` by default to help avoid race conditions...
+
+Run it with:
+
+```
+$ mpirun -n 2 python simple_mean.py
+```
 
 ## Using MPI Spawn
 
