@@ -13,6 +13,7 @@ from mpi4py import MPI
 from mpi4py.futures import MPIPoolExecutor
 import ocgis
 ocgis.env.OVERWRITE = True
+ocgis.env.ADD_OPS_MPI_BARRIER = False
 
 
 import logging
@@ -28,8 +29,8 @@ def calc_mean(dataset):
         dataset=rd,
         calc=[{'func': 'mean', 'name': 'mean'}],
         calc_grouping=['month'],
-        prefix='mean_{}'.format(ocgis.vm.rank),
-        # dir_output=MODULE_PATH,
+        prefix='mean',
+        dir_output='.',
         output_format='nc')
     output = ops.execute()
     # notify about completion
