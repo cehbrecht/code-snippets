@@ -50,6 +50,10 @@ def julia_line(k):
 class Julia(Process):
     def __init__(self):
         inputs = [
+            LiteralInput('width', 'Image Width',
+                         default=640, data_type='integer'),
+            LiteralInput('height', 'Image Height',
+                         default=480, data_type='integer'),
         ]
         outputs = [
             ComplexOutput('output', 'Output',
@@ -71,9 +75,9 @@ class Julia(Process):
         )
 
     def _handler(self, request, response):
+        WIDTH = request.inputs['width'][0].data * 2
+        HEIGHT = request.inputs['height'][0].data * 2
         response.update_status('Julia started. Waiting...', 10)
-        WIDTH = 640 * 2
-        HEIGHT = 480 * 2
         tic = time.time()
         with MPIPoolExecutor(max_workers=None, timeout=10, path=[MODULE_PATH]) as executor:
             image = executor.map(julia_line, range(HEIGHT))
@@ -109,6 +113,6 @@ def test_wps_sleep():
     client = client_for(Service(processes=[Julia()], cfgfiles=['pywps.cfg']))
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='julia',
-        datainputs=None)
+        datainputs="width=640;height=480;")
     print(resp.response)
     assert_response_success(resp)
