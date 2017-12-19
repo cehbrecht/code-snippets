@@ -79,6 +79,7 @@ class Mean(Process):
         response.update_status('PyWPS Process started. Waiting...', 10)
         with MPIPoolExecutor(max_workers=None, timeout=10, path=[MODULE_PATH]) as executor:
             future = executor.submit(calc_mean, dataset=dataset)
+            # future = executor.submit(time.sleep, 2)
             # input_data = [dataset for i in range(2)]
             # result = executor.map(calc_mean, input_data)
             # for value in result:
