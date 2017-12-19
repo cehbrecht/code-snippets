@@ -44,3 +44,4 @@ https://groups.google.com/forum/#!topic/mpi4py/9C6SY4ZY7LI
 
 * https://pypi.python.org/pypi/mpi4py
 * https://mpi4py.scipy.org/docs/usrman/tutorial.html
+* https://mpi4py.scipy.org/docs/usrman/mpi4py.futures.html
